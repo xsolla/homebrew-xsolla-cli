@@ -4,9 +4,9 @@
 class Xsolla < Formula
   desc "Xsolla CLI - manage Xsolla services from the command line"
   homepage "https://developers.xsolla.com/doc/cli"
-  url "https://github.com/xsolla/xsolla-cli.git", tag: "v0.2.0", using: :git
-  version "0.2.0"
-  license "MIT"
+  url "https://github.com/xsolla/xsolla-cli.git", tag: "v0.9.0", using: :git
+  version "0.9.0"
+  license "Apache-2.0"
 
   depends_on "go" => :build
 
