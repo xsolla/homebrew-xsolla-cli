@@ -1,0 +1,13 @@
+# Every file in this repository is a Homebrew formula — arbitrary Ruby that runs
+# on a user's machine during `brew install`. A change here is code execution on
+# every installer, so it gets an owner.
+#
+# The release workflow in xsolla/xsolla-cli proposes formula updates as pull
+# requests (goreleaser `brews.repository.pull_request`), so this owner reviews
+# the automated bump as well as any hand edit.
+#
+# NOTE: CODEOWNERS only enforces review once the branch ruleset on `main`
+# requires it (`pull_request` + require_code_owner_review). Until then this file
+# assigns reviewers automatically but does not block a merge.
+
+* @JavadManashti
