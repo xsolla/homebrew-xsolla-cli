@@ -32,35 +32,87 @@ Confirm it worked:
 xsolla --version
 ```
 
-## Quick start
+---
 
-### 1. Get an account
+## Authentication
 
-New to Xsolla? Create a Publisher Account without leaving the terminal:
+**Start here.** Almost every command needs credentials, and most first-run problems are auth problems.
 
-```bash
-xsolla publisher signup
-```
-
-This walks through email confirmation, provisions your account, and saves your **Merchant ID** and **Project ID** to config. Your API key is printed once — save it.
-
-### 2. Sign in
+### Sign in
 
 ```bash
 xsolla auth login
 ```
 
-Runs an OAuth2 + PKCE browser flow and stores the token in your OS keychain (macOS Keychain / Windows Credential Manager). It is loaded and refreshed automatically on every command — the CLI never asks for your password. Check your session with `xsolla auth status`.
+This runs an OAuth2 + PKCE flow in your browser and stores the token in your OS keychain (macOS Keychain / Windows Credential Manager). The token is loaded and refreshed automatically on every subsequent command.
 
-For CI/CD and server-to-server use, set an API key instead. An explicit environment variable takes precedence over the keychain token:
+**The CLI never asks for your password.** Browser login is the only interactive sign-in path.
+
+### No account yet?
+
+Create a Publisher Account without leaving the terminal:
 
 ```bash
-export XSOLLA_API_KEY="your-api-key"
+xsolla publisher signup
 ```
+
+This walks through email confirmation, provisions the account, saves your **Merchant ID** and **Project ID** to config, and prints an **API key** once — save it.
+
+### Check, switch, and sign out
+
+```bash
+xsolla auth status           # who am I, and is my token still valid?
+xsolla auth list-account     # stored accounts (keychain slots)
+xsolla auth switch-account   # change the active account
+xsolla auth get-token        # print the current access token
+xsolla auth logout           # remove stored credentials
+```
+
+### CI/CD and server-to-server
+
+There's no browser in a pipeline, so use an API key instead:
+
+```bash
+export XSOLLA_API_KEY="your-api-key"        # macOS / Linux
+$env:XSOLLA_API_KEY = "your-api-key"        # Windows PowerShell
+```
+
+Basic Auth engages automatically once **both** `merchant_id` (from config) and `XSOLLA_API_KEY` are set — it's required for payments and catalog commands. `XSOLLA_TOKEN` is also honored if you need to supply a Bearer token directly.
 
 > Find your key in **Publisher Account → Company → API Keys**, or generate one with `xsolla publisher create-api-key`.
 
-### 3. Configure
+### Getting a 401 or 403 after a successful login?
+
+**An explicit `XSOLLA_API_KEY` takes precedence over your keychain token.** A stale or wrong key exported in your shell profile will shadow a perfectly good browser session, and the failure looks like a login problem rather than an environment problem. Check it first:
+
+```bash
+echo $XSOLLA_API_KEY     # is something set that you forgot about?
+xsolla auth status       # what the CLI thinks it's using
+unset XSOLLA_API_KEY     # fall back to the keychain token
+```
+
+Add `--verbose` to any command to see the request URL, headers, and response on stderr, with secrets redacted.
+
+### Publisher vs. player identities
+
+Some flows act as an operator, others as an end user. Pick per invocation:
+
+```bash
+xsolla auth login --auth-context xsolla-id     # sign in as a player (Xsolla ID)
+xsolla webshop ... --auth-context xsolla-id    # run one command as that identity
+```
+
+`publisher` is the default. Buyer-side `webshop` commands are made **as an end user** and need a player token, not a publisher credential — mixing the two is the most common source of confusing 403s.
+
+### Testing safely
+
+```bash
+xsolla config set sandbox true    # or pass --sandbox per command
+```
+
+---
+
+## Configure
 
 If you already have an account:
 
@@ -71,13 +123,7 @@ xsolla config set merchant_id YOUR_MERCHANT_ID
 xsolla config set project_id YOUR_PROJECT_ID
 ```
 
-Testing? Switch to sandbox so you never touch live money:
-
-```bash
-xsolla config set sandbox true
-```
-
-### 4. Make your first calls
+## Your first API calls
 
 ```bash
 # List catalog items
@@ -134,6 +180,7 @@ Run `xsolla <command> --help` for the full surface of any group.
 | `--json` | Emit pure JSON to stdout — for scripting and `jq` |
 | `--dry-run` | Preview actions without executing them |
 | `--verbose` | Echo request/response I/O to stderr (secrets redacted) |
+| `--auth-context` | `publisher` or `xsolla-id` for this invocation |
 | `--profile` | Switch between named configuration profiles |
 | `--log-level` | `error`, `warn`, `info`, `debug`, `trace` |
 
@@ -181,7 +228,7 @@ cosign verify-blob \
   checksums.txt
 ```
 
-Each release also ships a per-archive [SBOM](https://en.wikipedia.org/wiki/Software_supply_chain) (`*.sbom.json`) so you can inspect dependencies without unpacking the binary.
+Each release also ships a per-archive SBOM (`*.sbom.json`) so you can inspect dependencies without unpacking the binary.
 
 ## Documentation
 
