@@ -5,21 +5,21 @@
 class Xsolla < Formula
   desc "Xsolla CLI - manage Xsolla services from the command line"
   homepage "https://developers.xsolla.com/doc/cli"
-  version "1.0.0"
+  version "1.9.4"
   license "Apache-2.0"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/xsolla/xsolla-cli/releases/download/v1.0.0/xsolla_1.0.0_darwin_amd64.tar.gz"
-      sha256 "2d6fb4051e8a77cf67e04d068dcc708c697dcf0de68fc5aa2fa8192ef0558051"
+      url "https://cdn.xsolla.net/xsolla-cli/v1.9.4/xsolla_1.9.4_darwin_amd64.tar.gz"
+      sha256 "ce2f050ef4b7aeb25e9a034d68dbf7b547b1505d8176ec8ba6f264ac3cff4d1f"
 
       define_method(:install) do
         bin.install "xsolla"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/xsolla/xsolla-cli/releases/download/v1.0.0/xsolla_1.0.0_darwin_arm64.tar.gz"
-      sha256 "477afd4617dd6f71bf9618dfb76d67995b6deded146bd64a13f1fcd2bc72f996"
+      url "https://cdn.xsolla.net/xsolla-cli/v1.9.4/xsolla_1.9.4_darwin_arm64.tar.gz"
+      sha256 "c534931df74f3ceac2b52f7b288b2a8b760c94bc4f370fe68daef901f8e10b39"
 
       define_method(:install) do
         bin.install "xsolla"
@@ -29,22 +29,36 @@ class Xsolla < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/xsolla/xsolla-cli/releases/download/v1.0.0/xsolla_1.0.0_linux_amd64.tar.gz"
-      sha256 "4569d0d04242abd642ed53904132fc7806ddedd6d87d822612124141a4863719"
+      url "https://cdn.xsolla.net/xsolla-cli/v1.9.4/xsolla_1.9.4_linux_amd64.tar.gz"
+      sha256 "94a31a02cb291c2e6461a918c4e94c41bac8d029526f8ccdb7765b5759ee979f"
       define_method(:install) do
         bin.install "xsolla"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/xsolla/xsolla-cli/releases/download/v1.0.0/xsolla_1.0.0_linux_arm64.tar.gz"
-      sha256 "ad571c30ac3908f524eeeea6c695200dfeba8a6cbe90724b11e04c5f1d7d96a8"
+      url "https://cdn.xsolla.net/xsolla-cli/v1.9.4/xsolla_1.9.4_linux_arm64.tar.gz"
+      sha256 "9d1f5ee4019a869d2af6968b4fbd85045ae8c8cd51d6bde27216d671a518c9d8"
       define_method(:install) do
         bin.install "xsolla"
       end
     end
   end
 
+  def caveats
+    <<~EOS
+      Agent skills (SKILL.md playbooks for Claude Code, Cursor, Copilot) ship in the
+      binary but are not installed automatically:
+
+        xsolla skills install            # this project (./.claude/skills)
+        xsolla skills install --global   # all projects (~/.claude/skills)
+        xsolla skills list               # what's available
+
+      Skills install outside Homebrew's prefix, so `brew uninstall xsolla` cannot
+      remove them. Run `xsolla skills uninstall --all` first.
+    EOS
+  end
+
   test do
-    system "#{bin}/xsolla", "version"
+    system "#{bin}/xsolla", "--version"
   end
 end
