@@ -127,10 +127,10 @@ xsolla config set project_id YOUR_PROJECT_ID
 
 ```bash
 # List catalog items
-xsolla catalog list-items --project-id 301567
+xsolla catalog list-items --project-id <PROJECT_ID>
 
 # Create a virtual item
-xsolla catalog create-items --project-id 301567 \
+xsolla catalog create-items --project-id <PROJECT_ID> \
   --sku sword_01 \
   --name '{"en":"Sword"}' \
   --is-free=false \
@@ -138,14 +138,14 @@ xsolla catalog create-items --project-id 301567 \
 
 # Create a payment token
 xsolla payments create-token \
-  --merchant-id 870314 \
-  --settings '{"project_id":301567,"currency":"USD","mode":"sandbox"}' \
+  --merchant-id <MERCHANT_ID> \
+  --settings '{"project_id":<PROJECT_ID>,"currency":"USD","mode":"sandbox"}' \
   --user '{"id":{"value":"player_1"},"email":{"value":"test@example.com"}}' \
   --purchase '{"checkout":{"amount":9.99,"currency":"USD"}}'
 
 # Search transactions, as JSON
 xsolla payments search-transactions \
-  --merchant-id 870314 \
+  --merchant-id <MERCHANT_ID> \
   --from "2026-01-01" --to "2026-12-31" --json
 ```
 
@@ -227,6 +227,12 @@ cosign verify-blob \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   checksums.txt
 ```
+
+The `--certificate-identity-regexp` value is an *assertion matched against the
+signing certificate*, not a URL that gets fetched — `xsolla/xsolla-cli` is a private
+repository, but nothing here reads it. Both `checksums.txt` and its Sigstore bundle
+are served publicly from the CDN, and the bundle embeds the certificate and
+transparency-log entry, so verification needs no GitHub access at all.
 
 Each release also ships a per-archive SBOM (`*.sbom.json`) so you can inspect dependencies without unpacking the binary.
 
